@@ -33,7 +33,7 @@ async function run() {
 
         // category section
         app.get('/category', async(req, res) =>{
-            const cursor = CategoryshopCollection.find()
+            const cursor = CategoryshopCollection.find().limit(3)
             const result = await cursor.toArray()
             res.send(result)
         })
@@ -43,6 +43,12 @@ async function run() {
         app.post('/add-blog', async(req, res) =>{
             const blogData = req.body
             const result = await BlogCollection.insertOne(blogData)
+            res.send(result)
+        })
+
+        app.get('/recent-blog', async(req, res) =>{
+            const RecentBlog = BlogCollection.find().sort({CurrentTime: -1}).limit(6)
+            const result = await RecentBlog.toArray()
             res.send(result)
         })
 
