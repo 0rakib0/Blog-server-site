@@ -47,9 +47,10 @@ async function run() {
         })
 
         app.get('/recent-blog', async(req, res) =>{
-            const RecentBlog = BlogCollection.find().sort({CurrentTime: -1}).limit(6)
-            const result = await RecentBlog.toArray()
-            res.send(result)
+            const RecentBlog = await BlogCollection.find().sort({CurrentTime: -1}).limit(6).toArray()
+            // const result = await RecentBlog.toArray()
+            // console.log(result)
+            res.send(RecentBlog)
         })
 
         // Send a ping to confirm a successful connection
