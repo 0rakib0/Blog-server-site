@@ -86,6 +86,14 @@ async function run() {
             res.send(RecentBlog)
         })
 
+        app.get('/sort-Blog', async(req, res) =>{
+            const cursor = BlogCollection.find()
+            const result = await cursor.limit(10).toArray()
+            const SortData = result.sort((a, b) => a.details.length - b.details.length).reverse()
+            // console.log(result)
+            res.send(SortData)
+        })
+
         // wishList section
         app.post('/addToWishlist', async(req, res) =>{
             const wishlistData = req.body
