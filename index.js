@@ -3,9 +3,41 @@ const cors = require('cors')
 const app = express()
 const port = process.env.POST || 5000
 require('dotenv').config()
-app.use(express.json())
-app.use(cors())
+const cookieParser = require('cookie-parser')
+const jwt = require('jsonwebtoken');
 
+
+
+app.use(express.json())
+app.use(cors({
+    origin: ['http://localhost:5173'],
+    credentials: true
+}))
+
+
+const looged = (req, res, next) => {
+    console.log('Logged Info Here>>>>>>>>>>-----', req.method, req.url)
+    next()
+}
+
+const verifyToken = (req, res, next) => {
+    const token = req?.cookies?.token
+    console.log(token)
+    if (!token) {
+        return res.status(401).send({ message: 'Unautorize Access' })
+    }
+    jwt.verify(token, process.env.SECRET_TOKEN_KEY, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: 'Unautorize Access' })
+        }
+        req.user = decoded;
+        next()
+    })
+}
+
+
+
+app.use(cookieParser())
 
 
 
@@ -32,6 +64,22 @@ async function run() {
         const WishListCOllection = client.db("BlogDB").collection("wishlist");
         const CommentCOllection = client.db("BlogDB").collection("Comment");
 
+        // JWT Token Section
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.SECRET_TOKEN_KEY, { expiresIn: '1h' })
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none'
+            })
+                .send(token)
+        })
+
+        app.post('/logout', async (req, res) => {
+            const user = req.body;
+            res.clearCookie('token', { maxAge: 0 }).send({ sucess: true })
+        })
 
         // category section
         app.get('/category', async(req, res) =>{
@@ -101,8 +149,12 @@ async function run() {
             res.send(result)
         })
 
-        app.get('/wishlists/:email', async(req, res) =>{
+        app.get('/wishlists/:email', verifyToken, async(req, res) =>{
             const email = req.params.email
+            const CookieUser = req.user.email
+            if (email !== CookieUser) {
+                return res.status(403).send({ message: 'Access Forbidden' })
+            }
             const quary = {email: email}
             const result = await WishListCOllection.find(quary).toArray()
             res.send(result)
