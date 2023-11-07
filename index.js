@@ -10,7 +10,7 @@ app.use(cors())
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PSS}@cluster0.zoyeiku.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -38,6 +38,13 @@ async function run() {
             res.send(result)
         })
 
+
+        app.get('/categorys', async(req, res) =>{
+            const cursor = CategoryshopCollection.find()
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
         // blogs section 
 
         app.post('/add-blog', async(req, res) =>{
@@ -48,6 +55,36 @@ async function run() {
 
         app.get('/recent-blog', async(req, res) =>{
             const RecentBlog = await BlogCollection.find().sort({CurrentTime: -1}).limit(6).toArray()
+            // const result = await RecentBlog.toArray()
+            // console.log(result)
+            res.send(RecentBlog)
+        })
+        app.get('/all-blog', async(req, res) =>{
+            let quary = {}
+            const cat = req.query.category
+            console.log('Hello Bangladesh')
+            console.log(cat)
+            const title = req.query?.title
+            console.log(title)
+            // console.log(req.query.category)
+            if(cat || title){
+                if(cat){
+                    quary = {Category: cat}
+                }
+                if(title){
+
+                    quary = {title: title}
+                }
+            }
+
+            app.get('/single-blog/:id', async(req, res) =>{
+                const Id = req.params.id
+                const quary = {_id: new ObjectId(Id)}
+                const result = await BlogCollection.findOne(quary)
+                res.send(result)
+            })
+            const RecentBlog = await BlogCollection.find(quary).toArray()
+                       
             // const result = await RecentBlog.toArray()
             // console.log(result)
             res.send(RecentBlog)
