@@ -10,7 +10,7 @@ const jwt = require('jsonwebtoken');
 
 app.use(express.json())
 app.use(cors({
-    origin: ['https://654ba9c5dbf5875e98726cf3--gentle-yeot-0c4163.netlify.app'],
+    origin: ['https://gentle-yeot-0c4163.netlify.app'],
     credentials: true
 }))
 
@@ -56,8 +56,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
-
+        
         const CategoryshopCollection = client.db("BlogDB").collection("category");
         const BlogCollection = client.db("BlogDB").collection("blogs");
         const WishListCOllection = client.db("BlogDB").collection("wishlist");
@@ -222,7 +221,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Hello world')
+    res.send('My Blog server site is running..........')
 })
 
 app.listen(port, () => {
