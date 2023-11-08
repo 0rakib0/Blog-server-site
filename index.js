@@ -30,6 +30,7 @@ async function run() {
         const CategoryshopCollection = client.db("BlogDB").collection("category");
         const BlogCollection = client.db("BlogDB").collection("blogs");
         const WishListCOllection = client.db("BlogDB").collection("wishlist");
+        const CommentCOllection = client.db("BlogDB").collection("Comment");
 
 
         // category section
@@ -56,18 +57,12 @@ async function run() {
 
         app.get('/recent-blog', async(req, res) =>{
             const RecentBlog = await BlogCollection.find().sort({CurrentTime: -1}).limit(6).toArray()
-            // const result = await RecentBlog.toArray()
-            // console.log(result)
             res.send(RecentBlog)
         })
         app.get('/all-blog', async(req, res) =>{
             let quary = {}
             const cat = req.query.category
-            console.log('Hello Bangladesh')
-            console.log(cat)
             const title = req.query?.title
-            console.log(title)
-            // console.log(req.query.category)
             if(cat || title){
                 if(cat){
                     quary = {Category: cat}
@@ -102,6 +97,26 @@ async function run() {
             const email = req.params.email
             const quary = {email: email}
             const result = await WishListCOllection.find(quary).toArray()
+            res.send(result)
+        })
+
+        app.delete('/deleteWishlist/:id', async(req, res) =>{
+            const Id = req.params.id
+            const quary = {_id: new ObjectId(Id)}
+            const result = await WishListCOllection.deleteOne(quary)
+            res.send(result)
+        })
+
+        app.post('/comment', async(req, res) =>{
+            const Comment = req.body
+            const result = await CommentCOllection.insertOne(Comment)
+            res.send(result)
+        })
+
+        app.get('/comment/:id', async(req, res) =>{
+            const Id = req.params.id
+            const quary = {blogId: Id}
+            const result = await CommentCOllection.find(quary).toArray()
             res.send(result)
         })
 
