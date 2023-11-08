@@ -10,7 +10,7 @@ const jwt = require('jsonwebtoken');
 
 app.use(express.json())
 app.use(cors({
-    origin: ['http://localhost:5173'],
+    origin: ['https://654ba9c5dbf5875e98726cf3--gentle-yeot-0c4163.netlify.app'],
     credentials: true
 }))
 
