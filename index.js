@@ -22,7 +22,6 @@ const looged = (req, res, next) => {
 
 const verifyToken = (req, res, next) => {
     const token = req?.cookies?.token
-    console.log(token)
     if (!token) {
         return res.status(401).send({ message: 'Unautorize Access' })
     }
@@ -63,6 +62,7 @@ async function run() {
         const BlogCollection = client.db("BlogDB").collection("blogs");
         const WishListCOllection = client.db("BlogDB").collection("wishlist");
         const CommentCOllection = client.db("BlogDB").collection("Comment");
+        const NewsLater = client.db("BlogDB").collection("NewsLatter");
 
         // JWT Token Section
         app.post('/jwt', async (req, res) => {
@@ -89,7 +89,7 @@ async function run() {
         })
 
 
-        app.get('/categorys', async(req, res) =>{
+        app.get('/allcategorys', async(req, res) =>{
             const cursor = CategoryshopCollection.find()
             const result = await cursor.toArray()
             res.send(result)
@@ -100,6 +100,25 @@ async function run() {
         app.post('/add-blog', async(req, res) =>{
             const blogData = req.body
             const result = await BlogCollection.insertOne(blogData)
+            res.send(result)
+        })
+
+        app.put('/updateBlog/:id', async (req, res) =>{
+            const Id = req.params.id
+            const UpdatedData = req.body
+            console.log(UpdatedData)
+            const filter = { _id: new ObjectId(Id) }
+            const options = { upsert: true }
+            const updateBlog = {
+                $set: {
+                    title: UpdatedData.title,
+                    blogPpic: UpdatedData.blogPpic,
+                    Category: UpdatedData.Category,
+                    shorDes: UpdatedData.shorDes,
+                    details: UpdatedData.details
+                }
+            }
+            const result = await BlogCollection.updateOne(filter, updateBlog, options)
             res.send(result)
         })
 
@@ -182,6 +201,12 @@ async function run() {
 
         app.get('/comment', async(req, res) =>{
             const result = await CommentCOllection.find().limit(5).toArray()
+            res.send(result)
+        })
+
+        app.post('/newslatter', async(req, res) =>{
+            const User = req.body
+            const result = await NewsLater.insertOne(User)
             res.send(result)
         })
 
