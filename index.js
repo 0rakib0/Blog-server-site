@@ -29,6 +29,7 @@ async function run() {
 
         const CategoryshopCollection = client.db("BlogDB").collection("category");
         const BlogCollection = client.db("BlogDB").collection("blogs");
+        const WishListCOllection = client.db("BlogDB").collection("wishlist");
 
 
         // category section
@@ -88,6 +89,20 @@ async function run() {
             // const result = await RecentBlog.toArray()
             // console.log(result)
             res.send(RecentBlog)
+        })
+
+        // wishList section
+        app.post('/addToWishlist', async(req, res) =>{
+            const wishlistData = req.body
+            const result = await WishListCOllection.insertOne(wishlistData)
+            res.send(result)
+        })
+
+        app.get('/wishlists/:email', async(req, res) =>{
+            const email = req.params.email
+            const quary = {email: email}
+            const result = await WishListCOllection.find(quary).toArray()
+            res.send(result)
         })
 
         // Send a ping to confirm a successful connection
